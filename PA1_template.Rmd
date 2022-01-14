@@ -7,19 +7,40 @@ output:
 
 
 ## Loading and preprocessing the data
-
-
+```{r}
+activity <- read.csv("activity.csv")
+```
 
 ## What is mean total number of steps taken per day?
 
-
+```{r}
+StepsPerDay <- aggregate(steps ~ date,activity,sum)
+print(paste("Mean: ", mean(StepsPerDay$steps)))
+print(paste("Median steps per day: ",median(StepsPerDay$steps)))
+hist(StepsPerDay$steps,breaks = 20,xlab="Steps Per Day",ylab="Days", main = "")
+```
 
 ## What is the average daily activity pattern?
+```{r}
+StepsPerInterval <- aggregate(steps ~ interval, activity,mean)
+plot(StepsPerInterval$interval,StepsPerInterval$steps, xlab="5 Minute Intervals",ylab="Average Steps",type="l",main = "Average Steps Taken Throughout Days by 5 min Interval")
 
-
-
+ maxInterval <- StepsPerInterval[StepsPerInterval$steps %in% max(StepsPerInterval$steps),]
+ print(paste("Interval with the highest step count: ", maxInterval$interval))
+```
 ## Imputing missing values
 
+```{r}
+print(paste("Number of NAs in step data: ",sum(is.na(activity$steps))))
 
+# replace NAs with zeros so the all days are counted:
+alldays <- activity
+alldays[is.na(alldays)]<- 0
+StepsPerDay <- aggregate(steps ~ date,alldays,sum)
+print("(days with missing data included)")
+print(paste("Mean: ", mean(StepsPerDay$steps)))
+print(paste("Median steps per day: ",median(StepsPerDay$steps)))
+hist(StepsPerDay$steps,breaks = 20,xlab="Steps Per Day",ylab="Days", main = "")
+```
 
 ## Are there differences in activity patterns between weekdays and weekends?
