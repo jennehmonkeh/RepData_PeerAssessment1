@@ -59,3 +59,22 @@ hist(newStepsPerDay$steps,breaks = 20,xlab="Steps Per Day",ylab="Days", main = "
 ```
 
 ## Are there differences in activity patterns between weekdays and weekends?
+```{r}
+
+noNa$dayofweek <- weekdays(as.Date(noNa$date))
+noNa$weekends <- as.factor(ifelse(noNa$dayofweek=='Saturday'|noNa$dayofweek=='Sunday',"weekend","weekday"))
+
+w_end <- subset(noNa,weekends=='weekend',select = c("steps","interval"))
+w_day<- subset(noNa,weekends=='weekday',select = c("steps","interval"))
+
+w_end_spi <- aggregate(steps ~ interval, w_end,mean)
+w_day_spi <- aggregate(steps ~ interval, w_day,mean)
+
+par(mfrow = c(1, 2)) 
+plot(w_end_spi$interval,w_end_spi$steps, xlab="5 Minute Intervals",ylab="Average Steps",type="l",main = "Weekends",ylim = c(0,200))
+plot(w_day_spi$interval,w_day_spi$steps, xlab="5 Minute Intervals",ylab="Average Steps",type="l",main = "Week",ylim = c(0,200))
+
+```
+
+**During the week steps are more varied probably due to schedule, with a spike at lunch and after work?  
+whereas during the weekend steps are more spread out through the day.**
