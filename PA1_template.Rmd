@@ -5,7 +5,6 @@ output:
     keep_md: true
 ---
 
-
 ## Loading and preprocessing the data
 ```{r}
 activity <- read.csv("activity.csv")
@@ -30,17 +29,33 @@ plot(StepsPerInterval$interval,StepsPerInterval$steps, xlab="5 Minute Intervals"
 ```
 ## Imputing missing values
 
+**Number of NAs in step data:**
 ```{r}
 print(paste("Number of NAs in step data: ",sum(is.na(activity$steps))))
+```
 
-# replace NAs with zeros so the all days are counted:
-alldays <- activity
-alldays[is.na(alldays)]<- 0
-StepsPerDay <- aggregate(steps ~ date,alldays,sum)
-print("(days with missing data included)")
-print(paste("Mean: ", mean(StepsPerDay$steps)))
-print(paste("Median steps per day: ",median(StepsPerDay$steps)))
-hist(StepsPerDay$steps,breaks = 20,xlab="Steps Per Day",ylab="Days", main = "")
+**Replace NA values in Step data with average steps for that interval:**
+```{r}
+library(dplyr)
+noNa <- activity %>%  
+  group_by(interval)%>% 
+  mutate(steps=ifelse(is.na(steps),
+                        as.integer(mean(steps,na.rm=TRUE)),
+                        as.integer(steps)))
+
+newStepsPerDay <- aggregate(steps ~ date,noNa,sum)
+print(paste("New Mean: ", mean(newStepsPerDay$steps)))
+print(paste("OLD Mean: ", mean(StepsPerDay$steps)))
+print(paste("New Median: ",median(newStepsPerDay$steps)))
+print(paste("OLD Median: ",median(StepsPerDay$steps)))
+```
+**The new mean is higher while the median steps per day is lower**  
+**Overall it is evident there is A LOT more data!**
+```{r}
+par(mfrow = c(1, 2)) 
+hist(StepsPerDay$steps,breaks = 20,xlab="Steps Per Day",ylab="Days", main = "With NAs", ylim = c(0,20))
+hist(newStepsPerDay$steps,breaks = 20,xlab="Steps Per Day",ylab="Days", main = "NAs Replaced", ylim = c(0,20))
+  
 ```
 
 ## Are there differences in activity patterns between weekdays and weekends?
